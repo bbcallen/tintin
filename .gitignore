@@ -6,3 +6,10 @@ src/config.status
 src/*.o
 src/tt++
 
+.vscode
+.DS_Store
+src/autom4te.cache
+src/autoscan.log
+src/configure~
+src/stamp-h1
+
