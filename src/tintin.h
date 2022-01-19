@@ -62,7 +62,7 @@
 #endif
 
 
-#ifdef TIME_WITH_SYS_TIME
+#ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
 
@@ -1146,11 +1146,14 @@ struct tintin_data
 	char                    color_reset[COLOR_SIZE];
 };
 
+struct tt_lua_context;
+
 struct session
 {
 	struct session        * next;
 	struct session        * prev;
 	struct map_data       * map;
+	struct tt_lua_context * lua;
 	struct port_data      * port;
 	z_stream              * mccp2;
 	z_stream              * mccp3;
@@ -2370,6 +2373,15 @@ extern DO_LINE(line_verbose);
 
 #ifndef __LOG_H__
 #define __LOG_H__
+
+extern DO_COMMAND(do_lua);
+extern void free_lua(struct session *ses);
+
+#endif
+
+
+#ifndef __LUA_H__
+#define __LUA_H__
 
 extern void logheader(struct session *ses, FILE *file, int newline);
 extern void init_log(struct session *ses);
