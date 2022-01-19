@@ -18,12 +18,12 @@
 #   along with TinTin++.  If not, see https://www.gnu.org/licenses.           #
 ###############################################################################
 
+AC_INIT([tintin++],[2.02.12])
 AM_INIT_AUTOMAKE
 
-AC_INIT
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([tintin.h])
-
-AC_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_MSG_RESULT([Configuring TinTin++])
 
@@ -55,6 +55,11 @@ fi
 
 AC_ARG_ENABLE(big5, [  --enable-big5           enable big5 support], BIG5="-DBIG5")
 
+# Checks for Lua 5.1.
+
+AX_PROG_LUA([5.1], [5.2],, [AC_MSG_ERROR([lua program not found.])])
+AX_LUA_HEADERS(, [AC_MSG_ERROR([lua headers not found.])])
+AX_LUA_LIBS(, [AC_MSG_ERROR([lua libraries not found.])])
 
 # Checks for programs.
 
@@ -64,7 +69,9 @@ AC_PROG_MAKE_SET
 
 # Checks for header files.
 
-AC_HEADER_STDC
+AC_CHECK_INCLUDES_DEFAULT
+AC_PROG_EGREP
+
 
 AC_CHECK_HEADERS([arpa/inet.h ctype.h fcntl.h net/errno.h netdb.h netinet/in.h param.h pthread.h socks.h stdlib.h string.h strings.h sys/ioctl.h sys/param.h sys/ptem.h sys/socket.h sys/termio.h sys/time.h time.h unistd.h util.h pty.h stropts.h]) 
 AC_CHECK_HEADERS([zlib.h],,
@@ -80,7 +87,8 @@ AC_CHECK_HEADERS([gnutls/gnutls.h],
 AC_C_CONST
 AC_HEADER_STDBOOL
 AC_TYPE_SIZE_T
-AC_HEADER_TIME
+AC_CHECK_HEADERS_ONCE([sys/time.h])
+
 AC_STRUCT_TM
 
 
@@ -89,7 +97,7 @@ AC_STRUCT_TM
 AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_SELECT_ARGTYPES
-AC_TYPE_SIGNAL
+
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_FUNC_UTIME_NULL
