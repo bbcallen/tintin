@@ -191,30 +191,37 @@ DO_COMMAND(do_lua)
     substitute(ses, arg1, arg1, SUB_VAR|SUB_FUN);
     substitute(ses, arg1, arg1, SUB_COL|SUB_ESC);
 
-    if (!ses->lua)
+    if (is_abbrev(arg1, "close"))
     {
-        if (init_lua(ses))
+        free_lua(ses);
+    }
+    else
+    {
+        if (!ses->lua)
         {
-            show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to init lua VM.", arg1);
+            if (init_lua(ses))
+            {
+                show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to init lua VM.", arg1);
+                return ses;
+            }
+        }
+        vm = ses->lua->vm;
+
+        lua_pushcfunction(vm, lua_pcall_error_func);
+        top = lua_gettop(vm);
+        if (luaL_loadstring(vm, arg1))
+        {
+            show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to load: %s", arg1, lua_tostring(vm, -1));
+            lua_pop(vm, 1);
             return ses;
         }
-    }
-    vm = ses->lua->vm;
-
-    lua_pushcfunction(vm, lua_pcall_error_func);
-    top = lua_gettop(vm);
-    if (luaL_loadstring(vm, arg1))
-    {
-        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to load: %s", arg1, lua_tostring(vm, -1));
+        if (lua_pcall(vm, 0, 0, top))
+        {
+            show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to call: %s", arg1, lua_tostring(vm, -1));
+            lua_pop(vm, 1);
+            return ses;
+        }
         lua_pop(vm, 1);
-        return ses;
     }
-    if (lua_pcall(vm, 0, 0, top))
-    {
-        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to call: %s", arg1, lua_tostring(vm, -1));
-        lua_pop(vm, 1);
-        return ses;
-    }
-    lua_pop(vm, 1);
 	return ses;
 }
