@@ -181,6 +181,7 @@ extern DO_COMMAND(do_killall);
 extern DO_COMMAND(do_log);
 extern DO_COMMAND(do_local);
 extern DO_COMMAND(do_list);
+extern DO_COMMAND(do_lua);
 extern DO_COMMAND(do_macro);
 extern DO_COMMAND(do_math);
 extern DO_COMMAND(do_message);
@@ -265,6 +266,7 @@ struct command_type command_table[] =
 	{    "local",             do_local,             1, TOKEN_TYPE_COMMAND },
 	{    "log",               do_log,               2, TOKEN_TYPE_COMMAND },
 	{    "loop",              do_nop,               3, TOKEN_TYPE_LOOP    },
+	{    "lua",               do_lua,               1, TOKEN_TYPE_COMMAND },
 	{    "macro",             do_macro,             3, TOKEN_TYPE_COMMAND },
 	{    "map",               do_map,               2, TOKEN_TYPE_COMMAND },
 	{    "math",              do_math,              2, TOKEN_TYPE_COMMAND },

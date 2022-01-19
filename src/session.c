@@ -762,6 +762,8 @@ void dispose_session(struct session *ses)
 		fclose(ses->log->line_file);
 	}
 
+	free_lua(ses);
+
 	if (ses->map)
 	{
 		delete_map(ses);
