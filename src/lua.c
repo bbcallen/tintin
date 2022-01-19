@@ -66,6 +66,16 @@ static void set_session(lua_State *vm, struct session *ses)
     lua_setglobal(vm, s_session_field_name);
 }
 
+static int lua_pcall_error_func(lua_State *vm)
+{
+    lua_getglobal(vm, "debug");
+    lua_getfield(vm, -1, "traceback");
+    lua_pushvalue(vm, 1);
+    lua_pushinteger(vm, 2);
+    lua_call(vm, 2, 1);
+    return 1;
+}
+
 static int l_print(lua_State *vm)
 {
     struct session *ses;
@@ -174,6 +184,7 @@ void free_lua(struct session *ses)
 DO_COMMAND(do_lua)
 {
     lua_State *vm;
+    int top;
 
     arg = get_arg_in_braces(ses, arg, arg1, GET_ALL);
 
@@ -182,19 +193,28 @@ DO_COMMAND(do_lua)
 
     if (!ses->lua)
     {
-        init_lua(ses);
+        if (init_lua(ses))
+        {
+            show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to init lua VM.", arg1);
+            return ses;
+        }
     }
     vm = ses->lua->vm;
 
+    lua_pushcfunction(vm, lua_pcall_error_func);
+    top = lua_gettop(vm);
     if (luaL_loadstring(vm, arg1))
     {
-        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {s} failed to load: %s", arg1, lua_tostring(vm, -1));
+        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to load: %s", arg1, lua_tostring(vm, -1));
         lua_pop(vm, 1);
+        return ses;
     }
-    if (lua_pcall(vm, 0, LUA_MULTRET, 0))
+    if (lua_pcall(vm, 0, 0, top))
     {
-        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {s} failed to call: %s", arg1, lua_tostring(vm, -1));
+        show_error(ses, LIST_COMMAND, "\e[1;31m#ERROR: #LUA {%s} failed to call: %s", arg1, lua_tostring(vm, -1));
         lua_pop(vm, 1);
+        return ses;
     }
+    lua_pop(vm, 1);
 	return ses;
 }
