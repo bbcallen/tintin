@@ -15,16 +15,22 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(GnuTLS REQUIRED)
 find_package(PCRE REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(Lua51 REQUIRED)
+if(NOT DEFINED LUA_INCLUDE_DIRS)
+    list(APPEND LUA_INCLUDE_DIRS "${LUA_INCLUDE_DIR}")
+endif()
 
 set(MY_INCLUDE_DIRS)
 list(APPEND MY_INCLUDE_DIRS "${GNUTLS_INCLUDE_DIRS}")
 list(APPEND MY_INCLUDE_DIRS "${PCRE_INCLUDE_DIRS}")
 list(APPEND MY_INCLUDE_DIRS "${ZLIB_INCLUDE_DIRS}")
+list(APPEND MY_INCLUDE_DIRS "${LUA_INCLUDE_DIRS}")
 
 set(MY_LIBRARIES)
 list(APPEND MY_LIBRARIES "${GNUTLS_LIBRARIES}")
 list(APPEND MY_LIBRARIES "${PCRE_LIBRARIES}")
 list(APPEND MY_LIBRARIES "${ZLIB_LIBRARIES}")
+list(APPEND MY_LIBRARIES "${LUA_LIBRARIES}")
 
 # Configure check
 include(ConfigureCheck)
@@ -56,6 +62,7 @@ add_library(tinlib
     line.c
     list.c
     log.c
+    lua.c
     mapper.c
     math.c
     mccp.c
